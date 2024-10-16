@@ -14,6 +14,10 @@ import FantomFarmComponent from './FantomFarmComponent';
 import WFTM_DEUS_ABI from './abis/ftm/WFTM_DEUS_ABI.json';
 import WFTM_DEUS_GAUGE_ABI from './abis/ftm/WFTM_DEUS_GAUGE_ABI.json';
 
+// Import components
+import BSCFarmComponent from './BSCFarmComponent';
+
+
 const equalTokenAddress = '0x3Fd3A0c85B70754eFc07aC9Ac0cbBDCe664865A6'; // EQUAL token address
 
 
@@ -63,7 +67,20 @@ export default function Home() {
       decimalsToken0={18}
       decimalsToken1={18}
     />
+
+      <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BSC: Thena</h2>
+
+      {/* BNB/DEUS Farm */}
+      <BSCFarmComponent
+        poolName="BNB/DEUS"
+        poolAddress="0xF07C6760cF104faDe420cFc0BaD1D040205803CA"
+        token0Symbol="BNB"
+        token1Symbol="DEUS"
+      />
+
     </div>
+
+    
 
 
   );
