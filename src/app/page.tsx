@@ -20,7 +20,8 @@ import SolidlyFarmComponent from './components/SolidlyFarmComponent';
 //BSC - THENA
 import BSCFarmComponent from './components/BSCFarmComponent';
 
-
+//ARBITRUM - RAMSES
+import ArbitrumFarmComponent from './components/ArbitrumFarmComponent';
 
 
 export default function Home() {
@@ -90,6 +91,14 @@ export default function Home() {
         token0Symbol="WFTM"
         token1Symbol="DEUS"
       />
+
+      <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Arbitrum: RAMSES</h2>
+      {/* RAMSES WETH/DEUS Farm */}
+      <ArbitrumFarmComponent
+        poolName="RAMSES-WETH/DEUS"
+        poolId="0x93d98b4caac02385a0ae7caaeadc805f48553f76"
+      />
+
 
     </div>
 
