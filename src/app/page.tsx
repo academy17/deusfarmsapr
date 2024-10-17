@@ -1,24 +1,26 @@
 "use client"; // Add this at the top
 import React from 'react';
 
-//BASE
-import BaseFarmComponent from './BaseFarmComponent';
+//BASE - AERODROME
+import BaseFarmComponent from './components/BaseFarmComponent';
 import WETH_DEUS_AERO_ABI from './abis/base/WETH_DEUS_AERO_ABI.json';
 import WETH_DEUS_GAUGE_CONTRACT_ABI from './abis/base/WETH_DEUS_GAUGE_ABI.json';
 import USDC_DEUS_AERO_ABI from './abis/base/USDC_DEUS_AERO_ABI.json';
 import USDC_DEUS_GAUGE_CONTRACT_ABI from './abis/base/USDC_DEUS_GAUGE_ABI.json';
 
 
-//FANTOM
-import FantomFarmComponent from './FantomFarmComponent';
+//FANTOM - EQUALIZER
+import FantomFarmComponent from './components/FantomFarmComponent';
 import WFTM_DEUS_ABI from './abis/ftm/WFTM_DEUS_ABI.json';
 import WFTM_DEUS_GAUGE_ABI from './abis/ftm/WFTM_DEUS_GAUGE_ABI.json';
 
-// Import components
-import BSCFarmComponent from './BSCFarmComponent';
+//FANTOM - SOLIDLY
+import SolidlyFarmComponent from './components/SolidlyFarmComponent';
+
+//BSC - THENA
+import BSCFarmComponent from './components/BSCFarmComponent';
 
 
-const equalTokenAddress = '0x3Fd3A0c85B70754eFc07aC9Ac0cbBDCe664865A6'; // EQUAL token address
 
 
 export default function Home() {
@@ -61,7 +63,7 @@ export default function Home() {
       gaugeAddress="0x6b518B63c7ae6575276fdE8E250d4aF165F3A456"
       token0Symbol="WFTM"
       token1Symbol="DEUS"
-      equalTokenAddress={equalTokenAddress}  // Pass EQUAL token address for reward calculation
+      equalTokenAddress="0x3Fd3A0c85B70754eFc07aC9Ac0cbBDCe664865A6"  
       abi={WFTM_DEUS_ABI}
       gaugeAbi={WFTM_DEUS_GAUGE_ABI}
       decimalsToken0={18}
@@ -75,6 +77,17 @@ export default function Home() {
         poolName="BNB/DEUS"
         poolAddress="0xF07C6760cF104faDe420cFc0BaD1D040205803CA"
         token0Symbol="BNB"
+        token1Symbol="DEUS"
+      />
+
+
+      <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Solidly</h2>
+
+      {/* Solidly Farm */}
+      <SolidlyFarmComponent
+        poolName="WFTM/DEUS"
+        poolAddress="0x15055Ca920BC67cdA28278C68290845120002b07"
+        token0Symbol="WFTM"
         token1Symbol="DEUS"
       />
 

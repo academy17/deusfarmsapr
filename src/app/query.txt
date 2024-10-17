@@ -1,0 +1,22 @@
+{
+  pool(id: "0x15055ca920bc67cda28278c68290845120002b07") {
+    token0 {
+      name
+      tokenDayData(first: 7, orderBy: date, orderDirection: desc) {
+        volume
+        date
+        totalValueLocked
+      }
+      totalValueLocked
+    }
+    token1 {
+      name
+      tokenDayData(orderDirection: desc, orderBy: date, first: 7) {
+        volume
+        date
+        totalValueLocked
+      }
+      totalValueLocked
+    }
+  }
+}
