@@ -57,8 +57,6 @@ const BSCFarmComponent = ({
       if (!poolAddress || typeof poolAddress !== "string") {
         throw new Error("Pool address is missing or invalid.");
       }
-      console.log("Pool Address:", poolAddress);
-
       const response = await fetch("https://api.thena.fi/api/v1/fusions");
       const result = await response.json();
 

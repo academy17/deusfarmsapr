@@ -1,13 +1,18 @@
 "use client"; // Add this at the top
 import React from 'react';
 
+//wethdeus bribes 0xcf66F70B7d88749C1Fd2c4287Dc637ca24BA3AF2
+//usdcdeus bribes 0x3C5247C06CEB60Fd09177a71A513658454602613
 //BASE - AERODROME
 import BaseFarmComponent from './components/BaseFarmComponent';
 import WETH_DEUS_AERO_ABI from './abis/base/WETH_DEUS_AERO_ABI.json';
 import WETH_DEUS_GAUGE_CONTRACT_ABI from './abis/base/WETH_DEUS_GAUGE_ABI.json';
 import USDC_DEUS_AERO_ABI from './abis/base/USDC_DEUS_AERO_ABI.json';
 import USDC_DEUS_GAUGE_CONTRACT_ABI from './abis/base/USDC_DEUS_GAUGE_ABI.json';
-
+import POOL_FACTORY_ABI from './abis/base/POOL_FACTORY_ABI.json';
+import BASE_VOTER_ABI from './abis/base/BASE_VOTER_ABI.json';
+import WETH_DEUS_BRIBE_ABI from './abis/base/WETH_DEUS_BRIBE_ABI.json';
+import USDC_DEUS_BRIBE_ABI from './abis/base/USDC_DEUS_BRIBE_ABI.json';
 
 //FANTOM - EQUALIZER
 import FantomFarmComponent from './components/FantomFarmComponent';
@@ -41,6 +46,12 @@ export default function Home() {
         gaugeAbi={WETH_DEUS_GAUGE_CONTRACT_ABI}
         decimalsToken0={18}
         decimalsToken1={18}
+        factoryAbi={POOL_FACTORY_ABI}
+        factoryAddress="0x420DD381b31aEf6683db6B902084cB0FFECe40Da"
+        voterAbi={BASE_VOTER_ABI}
+        voterAddress="0x16613524e02ad97eDfeF371bC883F2F5d6C480A5"
+        bribeAbi={WETH_DEUS_BRIBE_ABI}
+        bribeAddress="0x3C5247C06CEB60Fd09177a71A513658454602613"
       />
 
       {/* USDC/DEUS Farm */}
@@ -54,6 +65,12 @@ export default function Home() {
         gaugeAbi={USDC_DEUS_GAUGE_CONTRACT_ABI}
         decimalsToken0={6}
         decimalsToken1={18}
+        factoryAbi={POOL_FACTORY_ABI}
+        factoryAddress="0x420DD381b31aEf6683db6B902084cB0FFECe40Da"
+        voterAbi={BASE_VOTER_ABI}
+        voterAddress="0x16613524e02ad97eDfeF371bC883F2F5d6C480A5"
+        bribeAbi={USDC_DEUS_BRIBE_ABI}
+        bribeAddress="0xcf66F70B7d88749C1Fd2c4287Dc637ca24BA3AF2"
       />
 
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Equalizer</h2>
@@ -98,8 +115,6 @@ export default function Home() {
         poolName="RAMSES-WETH/DEUS"
         poolId="0x93d98b4caac02385a0ae7caaeadc805f48553f76"
       />
-
-
     </div>
 
     

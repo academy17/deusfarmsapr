@@ -9,6 +9,7 @@ const fetchTokenPrices = async () => {
         `https://api.coingecko.com/api/v3/simple/price?ids=wrapped-fantom,usd-coin,deus-finance-2,equalizer-dex&vs_currencies=usd&x_cg_demo_api_key=${apiKey}`
       );
       const data = await response.json();
+
       return {
         WFTM: data['wrapped-fantom']?.usd || 0,
         USDC: data['usd-coin']?.usd || 0,
@@ -41,10 +42,6 @@ const calculateAPR = (rewardRate, equalPrice, tvl) => {
   const annualEmissions = (rewardRatePerSecond * secondsInDay * daysInYear) / decimals;
   const annualEmissionsUSD = Number(annualEmissions) * equalPrice;
   const apr = (annualEmissionsUSD * 100) / tvl;
-  console.log(`annualEmissionsUSD: ${annualEmissionsUSD}`);
-console.log(`TVL: ${tvl}`);
-        console.log(`APR: ${apr}`); 
-        console.log(`Equal Price: ${equalPrice}`); 
   return apr.toFixed(2);
 };
 
@@ -104,9 +101,6 @@ const FantomFarmComponent = ({
       const rewardRate = await fetchRewardRate(gaugeAbi, gaugeAddress, equalTokenAddress); // Pass EQUAL token address
       if (rewardRate && reserves.tvl && prices.EQUAL) { // Ensure EQUAL price is used
         const aprValue = calculateAPR(rewardRate, prices.EQUAL, reserves.tvl); // Use EQUAL price in APR calculation
-        console.log(`rewardRate: ${rewardRate}`);
-        console.log(`reserves TVL: ${reserves.tvl}`);
-        console.log(`EQUAL price: ${prices.EQUAL}`);
         setApr(aprValue);
       }
     } catch (err) {
