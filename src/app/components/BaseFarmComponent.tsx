@@ -305,7 +305,7 @@ const fetchSwapVolumeForLastWeekEpoch = async () => {
   const fetchNftVotesForEpoch = async () => {
     try {
       const web3 = getWeb3Instance();
-      const pastTimestamp = calculatePastTimestamp14Days(); // Get the Unix timestamp from 14 days ago
+      const pastTimestamp = calculatePastTimestamp14Days(); 
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
       const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp, voterContract);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
@@ -322,7 +322,7 @@ const fetchSwapVolumeForLastWeekEpoch = async () => {
   const fetchTotalPoolVotesForEpoch = async () => {
     try {
       const web3 = getWeb3Instance();
-      const pastTimestamp = calculatePastTimestamp14Days(); // Get the Unix timestamp from 14 days ago
+      const pastTimestamp = calculatePastTimestamp14Days(); 
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
       const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp, voterContract);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
@@ -332,7 +332,6 @@ const fetchSwapVolumeForLastWeekEpoch = async () => {
       
       const formattedTotalVotes = web3.utils.fromWei(totalVotesForPool, 'ether');
       
-      // Set the formatted value in state
       setTotalPoolVotes(formattedTotalVotes);
     } catch (err) {
       console.error("Failed to fetch total pool votes", err);

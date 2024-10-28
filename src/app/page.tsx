@@ -23,6 +23,11 @@ import AERO_ESCROW_ABI from './abis/base/AERO_ESCROW_ABI.json'
 import FantomFarmComponent from './components/FantomFarmComponent';
 import WFTM_DEUS_ABI from './abis/ftm/WFTM_DEUS_ABI.json';
 import WFTM_DEUS_GAUGE_ABI from './abis/ftm/WFTM_DEUS_GAUGE_ABI.json';
+import EQUALIZER_FACTORY_ABI from './abis/ftm/EQUALIZER_FACTORY_ABI.json';
+import EQUALIZER_VOTER_ABI from './abis/ftm/EQUALIZER_VOTER_ABI.json';
+import EQUALIZER_BRIBE_ABI from './abis/ftm/EQUALIZER_BRIBE_ABI.json';
+import EQUALIZER_VOTING_ESCROW_ABI from './abis/ftm/EQUALIZER_VOTING_ESCROW_ABI.json';
+
 
 //FANTOM - SOLIDLY
 import SolidlyFarmComponent from './components/SolidlyFarmComponent';
@@ -39,8 +44,10 @@ export default function Home() {
     <div className="p-6 bg-background text-foreground min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-center">DEUS Farms veNFT APRs</h1>
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BASE: Aerodrome</h2>
-
+      <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> veNFT APR is calculated as bribes-bribeReturn</p>
       {/* WETH/DEUS Farm */}
+      {/*
+
       <BaseFarmComponent
         poolName="WETH/DEUS"
         poolAddress="0x9e4CB8b916289864321661CE02cf66aa5BA63C94"
@@ -61,8 +68,9 @@ export default function Home() {
         escrowAbi={AERO_ESCROW_ABI}
         escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
       />
-
+       */}
       {/* USDC/DEUS Farm */}
+      {/*
       <BaseFarmComponent
         poolName="USDC/DEUS"
         poolAddress="0xf185f82A1948d014baE23d30b06FA8Da35110315"
@@ -84,7 +92,7 @@ export default function Home() {
         escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
 
       />
-
+      */}
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Equalizer</h2>
       {/* WFTM/EQUAL Farm */}
       <FantomFarmComponent
@@ -95,10 +103,22 @@ export default function Home() {
       token1Symbol="DEUS"
       equalTokenAddress="0x3Fd3A0c85B70754eFc07aC9Ac0cbBDCe664865A6"  
       abi={WFTM_DEUS_ABI}
-      gaugeAbi={WFTM_DEUS_GAUGE_ABI}
       decimalsToken0={18}
       decimalsToken1={18}
+      gaugeAbi={WFTM_DEUS_GAUGE_ABI}
+      factoryAbi={EQUALIZER_FACTORY_ABI}
+      factoryAddress="0xc6366EFD0AF1d09171fe0EBF32c7943BB310832a"
+      voterAbi={EQUALIZER_VOTER_ABI}
+      voterAddress="0xE3D1A117dF7DCaC2eB0AC8219341bAd92f18dAC1"
+      bribeAbi={EQUALIZER_BRIBE_ABI}
+      bribeAddress="0x4666f33E4fbE6C8AA9671bD2AEdc46d641451F85"
+      nftId={14707}
+      escrowAbi={EQUALIZER_VOTING_ESCROW_ABI}
+      escrowAddress="0x8313f3551C4D3984FfbaDFb42f780D0c8763Ce94"
+
     />
+
+
 
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BSC: Thena</h2>
 
