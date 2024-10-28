@@ -3,6 +3,7 @@ import React from 'react';
 
 //wethdeus bribes 0xcf66F70B7d88749C1Fd2c4287Dc637ca24BA3AF2
 //usdcdeus bribes 0x3C5247C06CEB60Fd09177a71A513658454602613
+
 //BASE - AERODROME
 import BaseFarmComponent from './components/BaseFarmComponent';
 import WETH_DEUS_AERO_ABI from './abis/base/WETH_DEUS_AERO_ABI.json';
@@ -13,6 +14,10 @@ import POOL_FACTORY_ABI from './abis/base/POOL_FACTORY_ABI.json';
 import BASE_VOTER_ABI from './abis/base/BASE_VOTER_ABI.json';
 import WETH_DEUS_BRIBE_ABI from './abis/base/WETH_DEUS_BRIBE_ABI.json';
 import USDC_DEUS_BRIBE_ABI from './abis/base/USDC_DEUS_BRIBE_ABI.json';
+import AERO_ESCROW_ABI from './abis/base/AERO_ESCROW_ABI.json'
+//veNFT ID's: 8421
+//veNFT IDs: 40814
+//escrow address: 0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4
 
 //FANTOM - EQUALIZER
 import FantomFarmComponent from './components/FantomFarmComponent';
@@ -32,7 +37,7 @@ import ArbitrumFarmComponent from './components/ArbitrumFarmComponent';
 export default function Home() {
   return (
     <div className="p-6 bg-background text-foreground min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-center">DEUS DEX veNFT APRs</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">DEUS Farms veNFT APRs</h1>
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BASE: Aerodrome</h2>
 
       {/* WETH/DEUS Farm */}
@@ -52,6 +57,9 @@ export default function Home() {
         voterAddress="0x16613524e02ad97eDfeF371bC883F2F5d6C480A5"
         bribeAbi={WETH_DEUS_BRIBE_ABI}
         bribeAddress="0x3C5247C06CEB60Fd09177a71A513658454602613"
+        nftId={8421}
+        escrowAbi={AERO_ESCROW_ABI}
+        escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
       />
 
       {/* USDC/DEUS Farm */}
@@ -71,6 +79,10 @@ export default function Home() {
         voterAddress="0x16613524e02ad97eDfeF371bC883F2F5d6C480A5"
         bribeAbi={USDC_DEUS_BRIBE_ABI}
         bribeAddress="0xcf66F70B7d88749C1Fd2c4287Dc637ca24BA3AF2"
+        nftId={8421}
+        escrowAbi={AERO_ESCROW_ABI}
+        escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
+
       />
 
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Equalizer</h2>
