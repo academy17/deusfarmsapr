@@ -31,6 +31,10 @@ import EQUALIZER_VOTING_ESCROW_ABI from './abis/ftm/EQUALIZER_VOTING_ESCROW_ABI.
 
 //FANTOM - SOLIDLY
 import SolidlyFarmComponent from './components/SolidlyFarmComponent';
+import WFTM_DEUS_SOLIDLY_ABI from './abis/ftm/WFTM_DEUS_SOLIDLY_ABI.json';
+import SOLIDLY_VOTER_ABI from './abis/ftm/SOLIDLY_VOTER_ABI.json';
+import SOLIDLY_VOTING_ESCROW from './abis/ftm/SOLIDLY_VOTING_ESCROW_ABI.json';
+
 
 //BSC - THENA
 import BSCFarmComponent from './components/BSCFarmComponent';
@@ -46,7 +50,7 @@ export default function Home() {
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BASE: Aerodrome</h2>
       <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> veNFT APR is calculated as bribes-bribeReturn</p>
       {/* WETH/DEUS Farm */}
-      {/*
+
 
       <BaseFarmComponent
         poolName="WETH/DEUS"
@@ -68,9 +72,9 @@ export default function Home() {
         escrowAbi={AERO_ESCROW_ABI}
         escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
       />
-       */}
+
       {/* USDC/DEUS Farm */}
-      {/*
+
       <BaseFarmComponent
         poolName="USDC/DEUS"
         poolAddress="0xf185f82A1948d014baE23d30b06FA8Da35110315"
@@ -92,7 +96,7 @@ export default function Home() {
         escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
 
       />
-      */}
+
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Equalizer</h2>
       {/* WFTM/EQUAL Farm */}
       <FantomFarmComponent
@@ -119,9 +123,7 @@ export default function Home() {
     />
 
 
-
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BSC: Thena</h2>
-
       {/* BNB/DEUS Farm */}
       <BSCFarmComponent
         poolName="BNB/DEUS"
@@ -129,16 +131,26 @@ export default function Home() {
         token0Symbol="BNB"
         token1Symbol="DEUS"
       />
-
-
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Solidly</h2>
 
       {/* Solidly Farm */}
       <SolidlyFarmComponent
         poolName="WFTM/DEUS"
-        poolAddress="0x15055Ca920BC67cdA28278C68290845120002b07"
+        poolAddress="0x15055ca920bc67cda28278c68290845120002b07"
         token0Symbol="WFTM"
         token1Symbol="DEUS"
+        solidTokenAddress="0x777cf5ba9c291a1a8f57ff14836f6f9dc5c0f9dd"  
+        abi={WFTM_DEUS_SOLIDLY_ABI}
+        decimalsToken0={18}
+        decimalsToken1={18}
+        gaugeAbi={WFTM_DEUS_GAUGE_ABI}
+        voterAbi={SOLIDLY_VOTER_ABI}
+        voterAddress="0x777bfCbDe82256064742220463c7764954e9a927"
+        bribeAbi={EQUALIZER_BRIBE_ABI}
+        bribeAddress="0x4666f33E4fbE6C8AA9671bD2AEdc46d641451F85"
+        nftId={2}
+        escrowAbi={SOLIDLY_VOTING_ESCROW}
+        escrowAddress="0x777B2Cc540E5E6824a5ceafB04c5a383874a6Bf5"
       />
 
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Arbitrum: RAMSES</h2>

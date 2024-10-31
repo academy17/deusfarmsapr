@@ -439,7 +439,7 @@ useEffect(() => {
             const bribeDifference = nftbribeReturn - Number(bribes) * prices.DEUS;
             const lpFeesReturn = Number(weeklyFees) * nftVoteFraction; // LP fees return
             const annualReturn = (bribeDifference + lpFeesReturn) * 52; // Annual return
-            const tvlForveNFT = Number(veNFTBalance) * prices.DEUS; // TVL for  veNFT 
+            const tvlForveNFT = Number(veNFTBalance) * prices.AERO; // TVL for  veNFT 
             const epochAPR = (annualReturn / tvlForveNFT) * 100; // APR in percentage
             
             return (
