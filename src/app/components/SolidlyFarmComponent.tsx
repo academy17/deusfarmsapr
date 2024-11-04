@@ -68,7 +68,6 @@ const calculate7dSwapVolume = async (
 ) => {
   const swapEvents = await fetchSwapEvents(contract, fromBlock, toBlock);
   let volumeUSD = 0;
-  console.log(`Initial volUSD: ${volumeUSD}`);
 
   swapEvents.forEach((event, index) => {
     const { amount0, amount1 } = event.returnValues;
@@ -77,7 +76,6 @@ const calculate7dSwapVolume = async (
     const parsedAmount0 = parseFloat(Web3.utils.fromWei(amount0, "ether"));
     const parsedAmount1 = parseFloat(Web3.utils.fromWei(amount1, "ether"));
 
-    console.log(`Event ${index} - Parsed Amount0: ${parsedAmount0}, Parsed Amount1: ${parsedAmount1}`);
 
     // Check if the parsed amounts are valid numbers
     if (!isNaN(parsedAmount0) && parsedAmount0 < 0) {
@@ -89,7 +87,6 @@ const calculate7dSwapVolume = async (
     }
   });
 
-  console.log(`Final volUSD after processing: ${volumeUSD}`);
   return volumeUSD;
 };
 
@@ -296,7 +293,7 @@ const SolidlyFarmComponent = ({
       const web3 = new Web3(process.env.NEXT_PUBLIC_ANKR_FANTOM_RPC_URL);
       const pastTimestamp = calculatePastTimestamp7Days(); // Timestamp from 14 days ago
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp, voterContract);
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const contract = new web3.eth.Contract(abi, poolAddress);
@@ -313,7 +310,6 @@ const SolidlyFarmComponent = ({
         token0Decimals,
         token1Decimals
       );
-      console.log(`SWAPvolume: ${volumeUSD}`);
       setSwapVolume(volumeUSD);
     } catch (error) {
       console.error('Error fetching swap volume for last epoch:', error);
@@ -327,7 +323,6 @@ const SolidlyFarmComponent = ({
       const poolFeeTier = 50;
       const poolFeeTierPercentage = poolFeeTier / 100;
       setFeeTier(poolFeeTierPercentage);
-      console.log(`poolFeeTierPercentage: ${poolFeeTierPercentage}`);
 
     }
     catch (error) {
@@ -353,9 +348,7 @@ const SolidlyFarmComponent = ({
       const latestTimestamp = Math.floor(Date.now() / 1000);
       const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(latestTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
-      console.log(`epochStartBlock: ${epochStartBlock}`);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
-      console.log(`epochEndBlock: ${epochEndBlock}`);
       const bribeContract = new web3.eth.Contract(bribeAbi, bribeAddress);
       const events = await bribeContract.getPastEvents('DepositBribe', {
         fromBlock: epochStartBlock,
@@ -424,7 +417,6 @@ const SolidlyFarmComponent = ({
       const web3 = getWeb3Instance();
       const veNFTBalance = await fetchVeNFTBalance(nftId, escrowAbi, escrowAddress);
       const formattedveNFTBalance = web3.utils.fromWei(veNFTBalance, 'ether');
-      console.log(`nftBalance: ${veNFTBalance}`);
       setveNFTBalance(formattedveNFTBalance); // Now it will accept the number type
     } catch (err) {
       console.error('Error fetching veNFT data:', err);
@@ -435,7 +427,6 @@ const SolidlyFarmComponent = ({
     const fetchPricesOnce = async () => {
       try {
         const tokenPrices = await fetchTokenPrices();
-        console.log("Fetched token prices:", tokenPrices);
         setPrices(tokenPrices); 
       } catch (error) {
         console.error('Error fetching token prices:', error);
@@ -448,37 +439,26 @@ const SolidlyFarmComponent = ({
   
   useEffect(() => {
     if (prices.DEUS && prices.WFTM) {
-      console.log("Prices available for DEUS and WFTM, fetching reserves...");
       fetchReserves();
-    } else {
-      console.log("Prices not yet available for DEUS or WFTM");
     }
   }, [prices]); 
   
   useEffect(() => {
     if (reserves.tvl > 0 && prices.SOLID > 0 && prices.WFTM > 0 && prices.DEUS > 0) {
-      console.log("All required prices and reserves are available, fetching swap volume and pool fee tier...");
       fetchSwapVolumeForLastWeekEpoch();
       fetchPoolFeeTier();
-    } else {
-      console.log("Waiting for prices and reserves to be populated:", {
-        tvl: reserves.tvl,
-        prices,
-      });
     }
   }, [reserves, prices.SOLID, prices.WFTM, prices.DEUS]); 
   
   useEffect(() => {
     if (feeTier > 0 && swapVolume > 0) {
       const weeklyPoolFees = (swapVolume * (feeTier / 100));
-      console.log(`Calculated weekly pool fees: ${weeklyPoolFees}`);
-      setWeeklyFees(weeklyPoolFees);
+     setWeeklyFees(weeklyPoolFees);
     }
   }, [feeTier, swapVolume]); 
   
   useEffect(() => {
-    console.log("Fetching bribes and NFT data...");
-    fetchBribesForLastWeekEpoch();
+    //fetchBribesForLastWeekEpoch();
     fetchNftVotesForEpoch();
     fetchTotalPoolVotesForEpoch(); 
     fetchVeNFTData(); 
@@ -525,25 +505,13 @@ const SolidlyFarmComponent = ({
             <td className="py-3 px-6 text-right">{Number(totalPoolVotes).toFixed(2)}</td>
             {(() => {
             const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
-            console.log(`nftVoteFraction: ${nftVoteFraction}`);
 
             const nftbribeReturn = Number(bribes) * nftVoteFraction;
-            console.log(`nftbribeReturn (USD): ${nftbribeReturn}`);
-
             const bribeDifference = nftbribeReturn - Number(bribes) * prices.DEUS;
-            console.log(`bribeDifference: ${bribeDifference}`);
-
             const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
-            console.log(`lpFeesReturn: ${lpFeesReturn}`);
-
             const annualReturn = (bribeDifference + lpFeesReturn) * 52;
-            console.log(`annualReturn: ${annualReturn}`);
-
             const tvlForveNFT = Number(veNFTBalance) * prices.SOLID;
-            console.log(`tvlForveNFT: ${tvlForveNFT}`);
-
             const epochAPR = (annualReturn / tvlForveNFT) * 100;
-            console.log(`epochAPR (%): ${epochAPR}`);
 
             return (
               <td className="py-3 px-6 text-right">

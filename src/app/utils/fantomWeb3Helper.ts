@@ -21,7 +21,6 @@ export const getWeb3Instance = (rpcIndex = 0): Web3 | null => {
   try {
     const provider = new Web3.providers.HttpProvider(rpcUrl, { timeout: 10000 }); // Timeout of 10 seconds
     const web3 = new Web3(provider);
-    console.log('Fantom Web3 initialized with provider:', rpcUrl);
     return web3;
   } catch (error) {
     console.error(`Failed to connect to ${rpcUrl}, trying next provider...`, error);

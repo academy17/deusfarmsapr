@@ -1,8 +1,6 @@
-"use client"; // Add this at the top
+"use client"; 
 import React from 'react';
 
-//wethdeus bribes 0xcf66F70B7d88749C1Fd2c4287Dc637ca24BA3AF2
-//usdcdeus bribes 0x3C5247C06CEB60Fd09177a71A513658454602613
 
 //BASE - AERODROME
 import BaseFarmComponent from './components/BaseFarmComponent';
@@ -15,9 +13,6 @@ import BASE_VOTER_ABI from './abis/base/BASE_VOTER_ABI.json';
 import WETH_DEUS_BRIBE_ABI from './abis/base/WETH_DEUS_BRIBE_ABI.json';
 import USDC_DEUS_BRIBE_ABI from './abis/base/USDC_DEUS_BRIBE_ABI.json';
 import AERO_ESCROW_ABI from './abis/base/AERO_ESCROW_ABI.json'
-//veNFT ID's: 8421
-//veNFT IDs: 40814
-//escrow address: 0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4
 
 //FANTOM - EQUALIZER
 import FantomFarmComponent from './components/FantomFarmComponent';
@@ -38,20 +33,30 @@ import SOLIDLY_VOTING_ESCROW from './abis/ftm/SOLIDLY_VOTING_ESCROW_ABI.json';
 
 //BSC - THENA
 import BSCFarmComponent from './components/BSCFarmComponent';
+import BNB_DEUS_POOL_ABI from "./abis/bnb/BNB_DEUS_POOL_ABI.json";
+import BRIBE_ABI from "./abis/bnb/BRIBE_ABI.json";
+import VOTER_ABI from "./abis/bnb/VOTER_ABI.json";
+import VOTING_ESCROW_ABI from "./abis/bnb/VOTING_ESCROW_ABI.json";
+
 
 //ARBITRUM - RAMSES
 import ArbitrumFarmComponent from './components/ArbitrumFarmComponent';
+import RAM_VOTER_ESCROW_ABI from './abis/arb/RAM_VOTER_ESCROW_ABI.json';
+import WETH_DEUS_RAM_ABI from './abis/arb/WETH_DEUS_RAM_ABI.json';
+import USDC_DEUS_RAM_ABI from './abis/arb/USDC_DEUS_RAM_ABI.json';
+import RAMSES_VOTER_ABI from './abis/arb/RAMSES_VOTER_ABI.json';
+import RAMSES_BRIBE_ABI from './abis/arb/RAMSES_BRIBE_ABI.json';
+import RAM_PAIR_FACTORY_ABI from './abis/arb/RAM_PAIR_FACTORY_ABI.json';
 
 
 export default function Home() {
   return (
     <div className="p-6 bg-background text-foreground min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-center">DEUS Farms veNFT APRs</h1>
+      <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> NOTE: veNFT APR is calculated as an annualized bribes-bribeReturn * deusPrice + votingFeeRewards</p>
+      <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> Data is reflective of the past epoch.</p>
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BASE: Aerodrome</h2>
-      <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> veNFT APR is calculated as bribes-bribeReturn</p>
       {/* WETH/DEUS Farm */}
-
-
       <BaseFarmComponent
         poolName="WETH/DEUS"
         poolAddress="0x9e4CB8b916289864321661CE02cf66aa5BA63C94"
@@ -72,9 +77,7 @@ export default function Home() {
         escrowAbi={AERO_ESCROW_ABI}
         escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
       />
-
       {/* USDC/DEUS Farm */}
-
       <BaseFarmComponent
         poolName="USDC/DEUS"
         poolAddress="0xf185f82A1948d014baE23d30b06FA8Da35110315"
@@ -96,7 +99,6 @@ export default function Home() {
         escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
 
       />
-
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Equalizer</h2>
       {/* WFTM/EQUAL Farm */}
       <FantomFarmComponent
@@ -119,20 +121,26 @@ export default function Home() {
       nftId={14707}
       escrowAbi={EQUALIZER_VOTING_ESCROW_ABI}
       escrowAddress="0x8313f3551C4D3984FfbaDFb42f780D0c8763Ce94"
-
     />
-
-
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BSC: Thena</h2>
-      {/* BNB/DEUS Farm */}
+    {/* BNB/DEUS Farm */}
       <BSCFarmComponent
         poolName="BNB/DEUS"
-        poolAddress="0xF07C6760cF104faDe420cFc0BaD1D040205803CA"
+        hyperVisorAddress="0xF07C6760cF104faDe420cFc0BaD1D040205803CA"
+        poolAddress="0x6a524C7328eb652248d1a3786f9DB0e74CA961F0"
         token0Symbol="BNB"
         token1Symbol="DEUS"
+        abi={BNB_DEUS_POOL_ABI}
+        bribeAddress="0xd1604f00F0101c87047cf7E892f04998FB1AE437"
+        bribeAbi={BRIBE_ABI}
+        voterAddress="0x3A1D0952809F4948d15EBCe8d345962A282C4fCb"
+        voterAbi={VOTER_ABI}
+        nftId={8}
+        escrowAbi={VOTING_ESCROW_ABI}
+        escrowAddress="0xfBBF371C9B0B994EebFcC977CEf603F7f31c070D"
+
       />
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Solidly</h2>
-
       {/* Solidly Farm */}
       <SolidlyFarmComponent
         poolName="WFTM/DEUS"
@@ -154,10 +162,43 @@ export default function Home() {
       />
 
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Arbitrum: RAMSES</h2>
-      {/* RAMSES WETH/DEUS Farm */}
+      {/* RAMSES WETH/DEUS Farm*/}
       <ArbitrumFarmComponent
         poolName="RAMSES-WETH/DEUS"
         poolId="0x93d98b4caac02385a0ae7caaeadc805f48553f76"
+        abi={WETH_DEUS_RAM_ABI}
+        token0Symbol="WETH"
+        token1Symbol="DEUS"
+        decimalsToken0={18}
+        decimalsToken1={18}
+        bribeAddress="0x42d05d13F951AA7c35Cc14453D594427928bF898"
+        bribeAbi={RAMSES_BRIBE_ABI}
+        voterAddress="0xAAA2564DEb34763E3d05162ed3f5C2658691f499"
+        voterAbi={RAMSES_VOTER_ABI}
+        nftId={4}
+        escrowAbi={RAM_VOTER_ESCROW_ABI}
+        escrowAddress="0xAAA343032aA79eE9a6897Dab03bef967c3289a06"
+        pairFactoryAbi={RAM_PAIR_FACTORY_ABI}
+        factoryAddress="0xAAA20D08e59F6561f242b08513D36266C5A29415"
+      />
+      {/* RAMSES USDC/DEUS Farm */}
+        <ArbitrumFarmComponent
+        poolName="RAMSES-USDC-DEUS"
+        poolId="0xFa78086986cA5A111497A07b4200391721eC1035"
+        abi={USDC_DEUS_RAM_ABI}
+        token0Symbol="USDC"
+        token1Symbol="DEUS"
+        decimalsToken0={6}
+        decimalsToken1={18}
+        bribeAddress="0x02624af5E4834C6493d8c7E33Fb9310f8a741B0c"
+        bribeAbi={RAMSES_BRIBE_ABI}
+        voterAddress="0xAAA2564DEb34763E3d05162ed3f5C2658691f499"
+        voterAbi={RAMSES_VOTER_ABI}
+        nftId={4}
+        escrowAbi={RAM_VOTER_ESCROW_ABI}
+        escrowAddress="0xAAA343032aA79eE9a6897Dab03bef967c3289a06"
+        pairFactoryAbi={RAM_PAIR_FACTORY_ABI}
+        factoryAddress="0xAAA20D08e59F6561f242b08513D36266C5A29415"
       />
     </div>
 

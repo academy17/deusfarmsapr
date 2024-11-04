@@ -1,19 +1,20 @@
 import Web3 from 'web3';
 
-// Array of multiple RPC URLs (for load distribution and fallback)
+// Array of multiple RPC URLs for BSC (for load distribution and fallback)
 const rpcUrls = [
-  `https://rpc.ankr.com/base/${process.env.NEXT_PUBLIC_ANKR_KEY}`,
-  `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`,
-  `https://rpc.base.org` // Add more providers if needed
+  `https://bsc-dataseed.binance.org/`,
+  `https://rpc.ankr.com/bsc/${process.env.NEXT_PUBLIC_ANKR_KEY}`,
+  `https://bsc-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`,
+  `https://bsc-dataseed1.defibit.io/` // Add more providers if needed
 ];
 
 // Helper function to add delay (in milliseconds)
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Web3 instance with retry logic
-export const getWeb3Instance = (rpcIndex = 0): Web3 | null => {
+export const getBSCWeb3Instance = (rpcIndex = 0): Web3 | null => {
   if (rpcIndex >= rpcUrls.length) {
-    console.error('All RPC providers failed');
+    console.error('All BSC RPC providers failed');
     return null;
   }
 
@@ -24,12 +25,12 @@ export const getWeb3Instance = (rpcIndex = 0): Web3 | null => {
     return web3;
   } catch (error) {
     console.error(`Failed to connect to ${rpcUrl}, trying next provider...`, error);
-    return getWeb3Instance(rpcIndex + 1); // Retry with the next provider
+    return getBSCWeb3Instance(rpcIndex + 1); // Retry with the next provider
   }
 };
 
 // Retry function that wraps async logic
-export const retryWeb3Operation = async (fn: Function, maxAttempts = rpcUrls.length, delayTime = 2000) => {
+export const retryBSCWeb3Operation = async (fn: Function, maxAttempts = rpcUrls.length, delayTime = 2000) => {
   let attempts = 0;
   while (attempts < maxAttempts) {
     try {

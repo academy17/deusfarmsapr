@@ -298,9 +298,7 @@ const FantomFarmComponent = ({
       const latestTimestamp = Math.floor(Date.now() / 1000);
       const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(latestTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
-      console.log(`epochStartBlock: ${epochStartBlock}`);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
-      console.log(`epochEndBlock: ${epochEndBlock}`);
       const bribeContract = new web3.eth.Contract(bribeAbi, bribeAddress);
       const events = await bribeContract.getPastEvents('DepositBribe', {
         fromBlock: epochStartBlock,
@@ -369,7 +367,6 @@ const FantomFarmComponent = ({
       const web3 = getWeb3Instance();
       const veNFTBalance = await fetchVeNFTBalance(nftId, escrowAbi, escrowAddress);
       const formattedveNFTBalance = web3.utils.fromWei(veNFTBalance, 'ether');
-      console.log(`nftBalance: ${veNFTBalance}`);
       setveNFTBalance(formattedveNFTBalance); // Now it will accept the number type
     } catch (err) {
       console.error('Error fetching veNFT data:', err);
