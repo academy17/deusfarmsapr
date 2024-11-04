@@ -1,7 +1,6 @@
 "use client"; 
 import React from 'react';
 
-
 //BASE - AERODROME
 import BaseFarmComponent from './components/BaseFarmComponent';
 import WETH_DEUS_AERO_ABI from './abis/base/WETH_DEUS_AERO_ABI.json';

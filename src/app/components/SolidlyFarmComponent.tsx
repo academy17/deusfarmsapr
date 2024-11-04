@@ -458,7 +458,7 @@ const SolidlyFarmComponent = ({
   }, [feeTier, swapVolume]); 
   
   useEffect(() => {
-    //fetchBribesForLastWeekEpoch();
+    //fetchBribesForLastWeekEpoch(); --No Bribes to Fetch
     fetchNftVotesForEpoch();
     fetchTotalPoolVotesForEpoch(); 
     fetchVeNFTData(); 
