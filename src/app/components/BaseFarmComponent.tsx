@@ -100,7 +100,7 @@ const calculatePastTimestamp7Days = () => {
 
  const getEpochBoundsByTimestamp = async (timestamp, voterContract) => {
   const epochStart = await voterContract.methods.epochVoteStart(timestamp).call();
-  const epochEnd = await voterContract.methods.epochVoteEnd(timestamp).call();  // Convert to numbers
+  const epochEnd = await voterContract.methods.epochVoteEnd(timestamp).call();
   const epochStartNumber = Number(epochStart);
   const epochEndNumber = Number(epochEnd);
   
@@ -111,10 +111,10 @@ const getBlockFromTimestampMoralis = async (timestamp: number): Promise<number |
   try {
     await initializeMoralis();
 
-    const date = new Date(timestamp * 1000).toISOString(); // Convert seconds to milliseconds and format
+    const date = new Date(timestamp * 1000).toISOString();
 
     const response = await Moralis.EvmApi.block.getDateToBlock({
-      chain: "0x2105", // Base chain ID 
+      chain: "0x2105",
       date: date,
     });
 
@@ -221,7 +221,7 @@ const BaseFarmComponent = ({
 const fetchSwapVolumeForLastWeekEpoch = async () => {
   try {
     const web3 = new Web3(`https://base-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_PROJECT_ID}`);
-        const pastTimestamp = calculatePastTimestamp7Days(); // Timestamp from 14 days ago
+        const pastTimestamp = calculatePastTimestamp7Days();
     const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
     const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp, voterContract);
     const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
@@ -285,7 +285,7 @@ const fetchSwapVolumeForLastWeekEpoch = async () => {
       fromBlock: epochStartBlock,
       toBlock: epochEndBlock,
       filter: {
-        reward: '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44', // Filter by reward address
+        reward: '0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44',
       }
     });
       let totalBribeAmount = 0;
@@ -343,7 +343,7 @@ const fetchSwapVolumeForLastWeekEpoch = async () => {
       const web3 = getWeb3Instance();
       const veNFTBalance = await fetchVeNFTBalance(nftId, escrowAbi, escrowAddress);
       const formattedveNFTBalance = web3.utils.fromWei(veNFTBalance, 'ether');
-      setveNFTBalance(formattedveNFTBalance); // Now it will accept the number type
+      setveNFTBalance(formattedveNFTBalance);
     } catch (err) {
       console.error('Error fetching veNFT data:', err);
     }
@@ -434,13 +434,13 @@ useEffect(() => {
             <td className="py-3 px-6 text-right">{Number(NFTVotes).toFixed(2)}</td>
             <td className="py-3 px-6 text-right">{Number(totalPoolVotes).toFixed(2)}</td>
             {(() => {
-            const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes); // Fraction of votes
-            const nftbribeReturn = Number(bribes) * nftVoteFraction; // Bribe return in USD
+            const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
+            const nftbribeReturn = Number(bribes) * nftVoteFraction;
             const bribeDifference = nftbribeReturn - Number(bribes) * prices.DEUS;
-            const lpFeesReturn = Number(weeklyFees) * nftVoteFraction; // LP fees return
-            const annualReturn = (bribeDifference + lpFeesReturn) * 52; // Annual return
-            const tvlForveNFT = Number(veNFTBalance) * prices.AERO; // TVL for  veNFT 
-            const epochAPR = (annualReturn / tvlForveNFT) * 100; // APR in percentage
+            const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
+            const annualReturn = (bribeDifference + lpFeesReturn) * 52;
+            const tvlForveNFT = Number(veNFTBalance) * prices.AERO;
+            const epochAPR = (annualReturn / tvlForveNFT) * 100;
             
             return (
               <td className="py-3 px-6 text-right">

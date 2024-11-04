@@ -6,7 +6,6 @@ import Moralis from 'moralis';
 import {initializeMoralis} from '../utils/moralisHelper';
 import { getBSCWeb3Instance } from '../utils/bscWeb3Helper';
 
-// Fetch token prices (BNB, DEUS, THENA, PION)
 const fetchTokenPrices = async () => {
   const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
   try {
@@ -18,7 +17,7 @@ const fetchTokenPrices = async () => {
       BNB: data["wbnb"]?.usd || 0,
       DEUS: data["deus-finance-2"]?.usd || 0,
       THENA: data["thena"]?.usd || 0,
-      PION: data["pion"]?.usd || 0, // Fetch PION price in USD
+      PION: data["pion"]?.usd || 0,
     };
   } catch (error) {
     console.error("Error fetching token prices:", error);
@@ -39,27 +38,23 @@ const calculatePastTimestamp7Days = () => {
 };
 
 const getEpochBoundsByTimestamp = async (timestamp: number) => {
-  // Helper function to find the most recent Thursday at 00:00 UTC
   const getMostRecentThursday = (date: Date) => {
     const day = date.getUTCDay();
-    const diff = (7 + day - 4) % 7; // Days to last Thursday
+    const diff = (7 + day - 4) % 7;
     const recentThursday = new Date(date);
     recentThursday.setUTCDate(date.getUTCDate() - diff);
-    recentThursday.setUTCHours(0, 0, 0, 0); // Set to 00:00 UTC
+    recentThursday.setUTCHours(0, 0, 0, 0);
     return recentThursday;
   };
 
-  const inputDate = new Date(timestamp * 1000); // Convert seconds to milliseconds
+  const inputDate = new Date(timestamp * 1000);
   const mostRecentThursday = getMostRecentThursday(inputDate);
 
-  // Set `epochEnd` as the most recent Thursday
   const epochEnd = mostRecentThursday;
 
-  // Set `epochStart` as the Thursday a week before `epochEnd`
   const epochStart = new Date(epochEnd);
-  epochStart.setUTCDate(epochEnd.getUTCDate() - 7); // Go back 7 days to the previous Thursday
+  epochStart.setUTCDate(epochEnd.getUTCDate() - 7);
 
-  // Convert dates to Unix timestamps
   const epochStartNumber = Math.floor(epochStart.getTime() / 1000);
   const epochEndNumber = Math.floor(epochEnd.getTime() / 1000);
 
@@ -70,10 +65,10 @@ const getBlockFromTimestampMoralis = async (timestamp: number): Promise<number |
   try {
     await initializeMoralis();
 
-    const date = new Date(timestamp * 1000).toISOString(); // Convert seconds to milliseconds and format
+    const date = new Date(timestamp * 1000).toISOString();
 
     const response = await Moralis.EvmApi.block.getDateToBlock({
-      chain: "0x38", // BSC chain ID 
+      chain: "0x38",
       date: date,
     });
 
@@ -102,17 +97,13 @@ const calculate7dSwapVolume = async (
   swapEvents.forEach((event, index) => {
     const { amount0, amount1 } = event.returnValues;
 
-    // Convert amounts to readable values
     const parsedAmount0 = parseFloat(Web3.utils.fromWei(amount0, "ether"));
     const parsedAmount1 = parseFloat(Web3.utils.fromWei(amount1, "ether"));
 
 
-    // Check if the parsed amounts are valid numbers
     if (!isNaN(parsedAmount0) && parsedAmount0 < 0) {
-      // Token0 was sold in the swap
       volumeUSD += Math.abs(parsedAmount0) * (prices[token0Symbol] || 0);
     } else if (!isNaN(parsedAmount1) && parsedAmount1 < 0) {
-      // Token1 was sold in the swap
       volumeUSD += Math.abs(parsedAmount1) * (prices[token1Symbol] || 0);
     }
   });
@@ -132,10 +123,8 @@ const fetchFeeTier = async (poolAddress, poolAbi) => {
     const web3 = new Web3(process.env.NEXT_PUBLIC_BSC_RPC_URL);
     const poolContract = new web3.eth.Contract(poolAbi, poolAddress);
     
-    // Call globalState on the pool contract to get the fee
     const globalState = await poolContract.methods.globalState().call();
     
-    // Extract the fee and convert it to a number
     const feeTier = Number(globalState.fee);
     return feeTier;
   } catch (error) {
@@ -192,7 +181,7 @@ const BSCFarmComponent = ({
   const [apr, setApr] = useState(null);
   const [error, setError] = useState<string | null>(null);
   const [prices, setPrices] = useState({ BNB: 0, DEUS: 0, THENA: 0, PION: 0}); 
-  const [poolData, setPoolData] = useState(null); // Store pool data once fetched
+  const [poolData, setPoolData] = useState(null);
   const [swapVolume, setSwapVolume] = useState(0);
   const [feeTier, setFeeTier] = useState(0); 
   const [weeklyFees, setWeeklyFees] = useState(0); 
@@ -202,18 +191,16 @@ const BSCFarmComponent = ({
   const [veNFTBalance, setveNFTBalance] = useState(0);
 
 
-  // Fetch token prices
   const fetchPrices = async () => {
     try {
       const tokenPrices = await fetchTokenPrices();
-      setPrices(tokenPrices); // Set prices state
+      setPrices(tokenPrices);
     } catch (err) {
       console.error("Error fetching token prices", err);
       setError("Error fetching token prices");
     }
   };
 
-  // Fetch Pool Data from Thena API
   const fetchPoolData = async () => {
     try {
       const response = await fetch("https://api.thena.fi/api/v1/fusions");
@@ -229,7 +216,6 @@ const BSCFarmComponent = ({
     }
   };
 
-  // Fetch and calculate reserves and TVL
   const fetchReserves = async () => {
     try {
       if (!prices || !poolData) {
@@ -237,7 +223,6 @@ const BSCFarmComponent = ({
         return;
       }
       
-      // Extract reserves from poolData
       const reserve0 = poolData.token0?.reserve || 0;
       const reserve1 = poolData.token1?.reserve || 0;
       const price0 = prices[token0Symbol];
@@ -264,7 +249,7 @@ const BSCFarmComponent = ({
   const fetchSwapVolumeForLastWeekEpoch = async () => {
     try {
       const web3 = new Web3(process.env.NEXT_PUBLIC_BSC_RPC_URL);
-      const pastTimestamp = calculatePastTimestamp7Days(); // Timestamp from 14 days ago
+      const pastTimestamp = calculatePastTimestamp7Days();
       const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
@@ -290,7 +275,6 @@ const BSCFarmComponent = ({
     }
   };
 
-// Function to fetch and set the pool fee tier in percentage
 const fetchPoolFeeTier = async () => {
   try {
     const poolFeeTier = await fetchFeeTier(poolAddress, abi);
@@ -320,7 +304,6 @@ const fetchBribesForLastWeekEpoch = async () => {
 
     let totalBribeAmount = 0;
     events.forEach(event => {
-      // Check if the rewardToken matches the desired address
       if (event.returnValues.rewardToken.toLowerCase() === '0xde5ed76e7c05ec5e4572cfc88d1acea165109e44') {
         const rewardAmount = web3.utils.fromWei(event.returnValues.reward, 'ether');
         totalBribeAmount += parseFloat(rewardAmount);
@@ -377,7 +360,7 @@ const fetchVeNFTData = async () => {
     const veNFTBalance = await fetchVeNFTBalance(nftId, escrowAbi, escrowAddress);
     console.log(`venftbalance: ${veNFTBalance}`);
     const formattedveNFTBalance = web3.utils.fromWei(veNFTBalance, 'ether');
-    setveNFTBalance(formattedveNFTBalance); // Now it will accept the number type
+    setveNFTBalance(formattedveNFTBalance);
   } catch (err) {
     console.error('Error fetching veNFT data:', err);
   }
@@ -386,7 +369,7 @@ const fetchVeNFTData = async () => {
 
   useEffect(() => {
     fetchPoolData();
-  }, [poolAddress]); // Fetch prices and pool data once when component mounts
+  }, [poolAddress]);
 
   useEffect(() => {
     const fetchPricesOnce = async () => {
@@ -410,7 +393,7 @@ const fetchVeNFTData = async () => {
     } else {
       console.log("Waiting for prices and pool data to be available...");
     }
-  }, [prices, poolData]); // Calculate reserves only when both prices and poolData are available
+  }, [prices, poolData]);
 
   useEffect(() => {
     if (reserves.tvl > 0 && prices.DEUS > 0) {
@@ -473,13 +456,13 @@ const fetchVeNFTData = async () => {
             <td className="py-3 px-6 text-right">{Number(NFTVotes).toFixed(2)}</td>
             <td className="py-3 px-6 text-right">{Number(totalPoolVotes).toFixed(2)}</td>
             {(() => {
-            const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes); // Fraction of votes
-            const nftbribeReturn = Number(bribes) * nftVoteFraction; // Bribe return in USD
+            const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
+            const nftbribeReturn = Number(bribes) * nftVoteFraction;
             const bribeDifference = nftbribeReturn - Number(bribes) * prices.DEUS;
-            const lpFeesReturn = Number(weeklyFees) * nftVoteFraction; // LP fees return
-            const annualReturn = (bribeDifference + lpFeesReturn) * 52; // Annual return
-            const tvlForveNFT = Number(veNFTBalance) * prices.THENA; // TVL for  veNFT 
-            const epochAPR = (annualReturn / tvlForveNFT) * 100; // APR in percentage
+            const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
+            const annualReturn = (bribeDifference + lpFeesReturn) * 52;
+            const tvlForveNFT = Number(veNFTBalance) * prices.THENA;
+            const epochAPR = (annualReturn / tvlForveNFT) * 100;
             
             return (
               <td className="py-3 px-6 text-right">
