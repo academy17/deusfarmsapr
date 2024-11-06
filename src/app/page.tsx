@@ -33,9 +33,11 @@ import SOLIDLY_VOTING_ESCROW from './abis/ftm/SOLIDLY_VOTING_ESCROW_ABI.json';
 //BSC - THENA
 import BSCFarmComponent from './components/BSCFarmComponent';
 import BNB_DEUS_POOL_ABI from "./abis/bnb/BNB_DEUS_POOL_ABI.json";
+import BNB_PION_POOL_ABI from "./abis/bnb/BNB_PION_POOL_ABI.json"
 import BRIBE_ABI from "./abis/bnb/BRIBE_ABI.json";
 import VOTER_ABI from "./abis/bnb/VOTER_ABI.json";
 import VOTING_ESCROW_ABI from "./abis/bnb/VOTING_ESCROW_ABI.json";
+import BNB_FACTORY_ABI from './abis/bnb/BNB_FACTORY_ABI.json';
 
 
 //ARBITRUM - RAMSES
@@ -46,7 +48,6 @@ import USDC_DEUS_RAM_ABI from './abis/arb/USDC_DEUS_RAM_ABI.json';
 import RAMSES_VOTER_ABI from './abis/arb/RAMSES_VOTER_ABI.json';
 import RAMSES_BRIBE_ABI from './abis/arb/RAMSES_BRIBE_ABI.json';
 import RAM_PAIR_FACTORY_ABI from './abis/arb/RAM_PAIR_FACTORY_ABI.json';
-
 
 export default function Home() {
   return (
@@ -137,8 +138,32 @@ export default function Home() {
         nftId={8}
         escrowAbi={VOTING_ESCROW_ABI}
         escrowAddress="0xfBBF371C9B0B994EebFcC977CEf603F7f31c070D"
+        factoryAbi={BNB_FACTORY_ABI}
+        factoryAddress="0xAFD89d21BdB66d00817d4153E055830B1c2B3970"
+        bribeToken="DEUS"
+
 
       />
+          {/* PION/DEUS Farm */}
+          <BSCFarmComponent
+        poolName="PION/BNB"
+        hyperVisorAddress="0xdc1e387fc2697f3737ee197712bfef9e1101ccd5"
+        poolAddress="0xdc1e387fc2697f3737ee197712bfef9e1101ccd5"
+        token0Symbol="PION"
+        token1Symbol="BNB"
+        abi={BNB_PION_POOL_ABI}
+        bribeAddress="0xC6964A544c993B919DDcD28ea7410077c2d093DC"
+        bribeAbi={BRIBE_ABI}
+        voterAddress="0x3A1D0952809F4948d15EBCe8d345962A282C4fCb"
+        voterAbi={VOTER_ABI}
+        nftId={8}
+        escrowAbi={VOTING_ESCROW_ABI}
+        escrowAddress="0xfBBF371C9B0B994EebFcC977CEf603F7f31c070D"
+        factoryAbi={BNB_FACTORY_ABI}
+        factoryAddress="0xAFD89d21BdB66d00817d4153E055830B1c2B3970"
+        bribeToken="PION"
+        />
+
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Solidly</h2>
       {/* Solidly Farm */}
       <SolidlyFarmComponent

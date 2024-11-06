@@ -109,7 +109,6 @@ const fetchFeeTier = async (poolId, pairFactoryAbi, factoryAddress) => {
     const fee = await factoryContract.methods.pairFee(poolId).call();
 
     const feeTier = Number(fee);
-    console.log(`Fee tier for pool ${poolId}:`, feeTier);
 
     return feeTier;
   } catch (error) {
@@ -137,7 +136,6 @@ const calculate7dSwapVolume = async (
   token1Decimals
 ) => {
   const swapEvents = await fetchSwapEvents(contract, fromBlock, toBlock);
-  console.log()
   let volumeUSD = 0;
 
   swapEvents.forEach(event => {
@@ -177,7 +175,6 @@ const fetchSwapEvents = async (contract, fromBlock, toBlock) => {
 const getNftVotesForEpoch = async (nftId, poolAddress, voterContract, epochEndBlock) => {
   try {
     const nftVotes = await voterContract.methods.votes(nftId, poolAddress).call({}, epochEndBlock);
-    console.log(`nftvotes: ${nftVotes}`);
     return nftVotes;
   } catch (error) {
     console.error('Error fetching NFT votes for epoch:', error);
@@ -232,8 +229,8 @@ const RamsesFarmComponent = ({
 
   const fetchSwapVolumeForLastWeekEpoch = async () => {
     try {
-      console.log("Starting fetchSwapVolumeForLastWeekEpoch...");
-  
+
+      
       const web3 = new Web3(process.env.NEXT_PUBLIC_ARB_RPC_URL);
       const pastTimestamp = calculatePastTimestamp7Days();
       const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
@@ -254,7 +251,6 @@ const RamsesFarmComponent = ({
         token1Decimals
       );
   
-      console.log(`Calculated swap volume in USD: ${volumeUSD}`);
       setSwapVolume(volumeUSD);
     } catch (error) {
       console.error("Error fetching swap volume for last epoch:", error);
@@ -269,7 +265,6 @@ const fetchPoolFeeTier = async () => {
 
     try {
       poolFeeTier = await fetchFeeTier(poolId, pairFactoryAbi, factoryAddress);
-      console.log(`Fetched pool fee tier from fetchFeeTier: ${poolFeeTier}`);
     } catch (error) {
       console.warn('fetchFeeTier failed, attempting currentFee() on pool contract.', error);
     }
@@ -279,7 +274,6 @@ const fetchPoolFeeTier = async () => {
         const web3 = new Web3(process.env.NEXT_PUBLIC_ARB_RPC_URL);
         const poolContract = new web3.eth.Contract(abi, poolId);
         poolFeeTier = await poolContract.methods.currentFee().call();
-        console.log(`Fetched pool fee tier from currentFee(): ${poolFeeTier}`);
         scale = 10000;
       } catch (contractError) {
         console.error("Error executing currentFee() on pool contract:", contractError);
@@ -289,7 +283,6 @@ const fetchPoolFeeTier = async () => {
 
     const feeTierValue = typeof poolFeeTier === 'bigint' ? Number(poolFeeTier) : poolFeeTier;
     const poolFeeTierPercentage = feeTierValue / scale;
-    console.log(`Pool fee tier percentage: ${poolFeeTierPercentage}`);
     setFeeTier(poolFeeTierPercentage);
   } catch (error) {
     console.error('Error fetching and setting pool fee tier:', error);
@@ -324,7 +317,6 @@ const fetchBribesForLastWeekEpoch = async () => {
       }
     });
 
-    console.log(`Total Bribe Amount for Last Epoch: ${totalBribeAmount}`);
     setBribes(totalBribeAmount);
   } catch (error) {
     console.error('Error fetching bribes for the last epoch:', error);
@@ -342,7 +334,6 @@ const fetchNftVotesForEpoch = async () => {
     const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
     const epochEndBlockFotVotes = epochEndBlock - 10;
           const nftVotesbyId = await getNftVotesForEpoch(nftId, poolId, voterContract, epochEndBlockFotVotes);
-          console.log(`nftvotesepoch: ${nftVotesbyId}`);
           const formattedNFTVotes = web3.utils.fromWei(nftVotesbyId, 'ether');
           setNFTVotes(formattedNFTVotes);
   } catch (err) {
@@ -361,7 +352,6 @@ const fetchTotalPoolVotesForEpoch = async () => {
     const epochEndBlockForVotes = epochEndBlock - 10;
     
     const totalVotesForPool = await voterContract.methods.weights(poolId).call({}, epochEndBlockForVotes);
-    console.log(`totalvotes: ${totalPoolVotes}`);
     const formattedTotalVotes = web3.utils.fromWei(totalVotesForPool, 'ether');
     
     setTotalPoolVotes(formattedTotalVotes);
@@ -374,7 +364,6 @@ const fetchVeNFTData = async () => {
   try {
     const web3 = new Web3(process.env.NEXT_PUBLIC_ARB_RPC_URL);
     const veNFTBalance = await fetchVeNFTBalance(nftId, escrowAbi, escrowAddress);
-    console.log(`venftbalance: ${veNFTBalance}`);
     const formattedveNFTBalance = web3.utils.fromWei(veNFTBalance, 'ether');
     setveNFTBalance(formattedveNFTBalance);
   } catch (err) {
@@ -413,7 +402,6 @@ useEffect(() => {
     prices.RAM > 0 &&
     prices.USDC > 0
   ) {
-    console.log("Fetching swap volume...");
     fetchSwapVolumeForLastWeekEpoch();
     fetchPoolFeeTier();
 
@@ -478,9 +466,12 @@ useEffect(() => {
              {(() => {
             const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
             const nftbribeReturn = Number(bribes) * nftVoteFraction;
-            const bribeDifference = nftbribeReturn - Number(bribes) * prices.DEUS;
+            const bribeDifference = (nftbribeReturn - Number(bribes)) * prices.DEUS;
+            console.log(`bribeDifferenceNumber: ${bribeDifference}`);
             const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
             const annualReturn = (bribeDifference + lpFeesReturn) * 52;
+            console.log(`annualReturn: ${annualReturn}`);
+
             const tvlForveNFT = Number(veNFTBalance) * prices.RAM;
             const epochAPR = (annualReturn / tvlForveNFT) * 100;
             

@@ -88,28 +88,46 @@ const calculate7dSwapVolume = async (
   toBlock,
   token0Symbol,
   token1Symbol,
-  token0Decimals = 18,
-  token1Decimals = 18
+  token0Decimals,
+  token1Decimals
 ) => {
   const swapEvents = await fetchSwapEvents(contract, fromBlock, toBlock);
   let volumeUSD = 0;
 
-  swapEvents.forEach((event, index) => {
-    const { amount0, amount1 } = event.returnValues;
+  swapEvents.forEach(event => {
+    let amount0, amount1;
 
-    const parsedAmount0 = parseFloat(Web3.utils.fromWei(amount0, "ether"));
-    const parsedAmount1 = parseFloat(Web3.utils.fromWei(amount1, "ether"));
+    if ('amount0Out' in event.returnValues && 'amount1Out' in event.returnValues) {
+      // Use outgoing amounts for more accurate swap volume
+      amount0 = event.returnValues.amount0Out;
+      amount1 = event.returnValues.amount1Out;
+    } else if ('amount0' in event.returnValues && 'amount1' in event.returnValues) {
+      // Handle alternative format with amount0 and amount1
+      amount0 = event.returnValues.amount0;
+      amount1 = event.returnValues.amount1;
+    } else {
+      console.warn('Unknown event format:', event);
+      return;
+    }
 
+    // Convert amounts to USD values based on token decimals
+    const parsedAmount0 = amount0 ? parseFloat(Web3.utils.fromWei(amount0, token0Decimals === 6 ? 'mwei' : 'ether')) : 0;
+    const parsedAmount1 = amount1 ? parseFloat(Web3.utils.fromWei(amount1, token1Decimals === 6 ? 'mwei' : 'ether')) : 0;
 
-    if (!isNaN(parsedAmount0) && parsedAmount0 < 0) {
-      volumeUSD += Math.abs(parsedAmount0) * (prices[token0Symbol] || 0);
-    } else if (!isNaN(parsedAmount1) && parsedAmount1 < 0) {
-      volumeUSD += Math.abs(parsedAmount1) * (prices[token1Symbol] || 0);
+    // Calculate volume in USD using the outgoing amounts
+    if (parsedAmount0 > 0) {
+      volumeUSD += parsedAmount0 * (prices[token0Symbol] || 0);
+    }
+    if (parsedAmount1 > 0) {
+      volumeUSD += parsedAmount1 * (prices[token1Symbol] || 0);
     }
   });
 
+  console.log(`Calculated 7-day swap volume in USD: ${volumeUSD}`);
   return volumeUSD;
 };
+
+
 
 const fetchSwapEvents = async (contract, fromBlock, toBlock) => {
   return await contract.getPastEvents('Swap', {
@@ -118,25 +136,42 @@ const fetchSwapEvents = async (contract, fromBlock, toBlock) => {
   });
 };
 
-const fetchFeeTier = async (poolAddress, poolAbi) => {
+const fetchFeeTier = async (poolAddress, poolAbi, factoryAbi, factoryAddress) => {
   try {
     const web3 = new Web3(process.env.NEXT_PUBLIC_BSC_RPC_URL);
     const poolContract = new web3.eth.Contract(poolAbi, poolAddress);
-    
-    const globalState = await poolContract.methods.globalState().call();
-    
-    const feeTier = Number(globalState.fee);
-    return feeTier;
+    const factoryContract = new web3.eth.Contract(factoryAbi, factoryAddress);
+
+    // First, attempt to fetch fee from globalState
+    try {
+      const globalState = await poolContract.methods.globalState().call();
+      const feeTier = Number(globalState.fee);
+      console.log(`Fetched fee tier from globalState: ${feeTier}`);
+      return { feeTier, scale: 10000 }; // Scale by 10000 for this method
+    } catch (error) {
+      console.warn("globalState().fee fetch failed, attempting getFee(false)", error);
+    }
+
+    // Fallback: call getFee(false) if globalState().fee fails
+    try {
+      const fee = await factoryContract.methods.getFee(false).call();
+      const feeTier = Number(fee);
+      console.log(`Fetched fee tier from getFee(false): ${feeTier}`);
+      return { feeTier, scale: 100 }; // Scale by 100 for getFee(false)
+    } catch (error) {
+      console.error("Error executing getFee(false) on pool contract:", error);
+      return null; // Exit if both methods fail
+    }
   } catch (error) {
-    console.error('Error fetching fee tier from globalState:', error);
+    console.error('Error fetching fee tier from pool contract:', error);
     return null;
   }
 };
 
+
 const getNftVotesForEpoch = async (nftId, poolAddress, voterContract, epochEndBlock) => {
   try {
     const nftVotes = await voterContract.methods.votes(nftId, poolAddress).call({}, epochEndBlock);
-    console.log(`nftvotes: ${nftVotes}`);
     return nftVotes;
   } catch (error) {
     console.error('Error fetching NFT votes for epoch:', error);
@@ -169,7 +204,10 @@ const BSCFarmComponent = ({
   voterAbi,
   nftId,
   escrowAbi,
-  escrowAddress
+  escrowAddress,
+  factoryAbi,
+  factoryAddress,
+  bribeToken
 }) => {
   const [reserves, setReserves] = useState({
     reserve0: 0,
@@ -277,10 +315,13 @@ const BSCFarmComponent = ({
 
 const fetchPoolFeeTier = async () => {
   try {
-    const poolFeeTier = await fetchFeeTier(poolAddress, abi);
-    console.log(`poolfeetier: ${poolFeeTier}`);
-    const poolFeeTierPercentage = poolFeeTier / 10000;
+    const { feeTier, scale } = await fetchFeeTier(poolAddress, abi, factoryAbi, factoryAddress);
+    console.log(`poolfeetier: ${feeTier}`);
+    
+    // Calculate percentage based on the returned scale
+    const poolFeeTierPercentage = feeTier / scale;
     console.log(`poolfeetierpct: ${poolFeeTierPercentage}`);
+    
     setFeeTier(poolFeeTierPercentage);
   } catch (error) {
     console.error('Error fetching and setting pool fee tier:', error);
@@ -295,21 +336,47 @@ const fetchBribesForLastWeekEpoch = async () => {
     const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(latestTimestamp);
     const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
     const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
-    
+
     const bribeContract = new web3.eth.Contract(bribeAbi, bribeAddress);
-    const events = await bribeContract.getPastEvents('RewardAdded', {
+    const primaryRewardToken = '0xde5ed76e7c05ec5e4572cfc88d1acea165109e44';
+    const secondaryRewardToken = '0xb8067235c9b71feec069af151fdf0975dfbdfba5';
+
+    let totalBribeAmount = 0;
+
+    // Helper function to accumulate bribes for a given rewardToken
+    const accumulateBribes = (events, rewardToken) => {
+      events.forEach(event => {
+        const eventRewardToken = event.returnValues.rewardToken?.toLowerCase();
+        console.log(`Event rewardToken: ${eventRewardToken}, reward: ${event.returnValues.reward}`);
+        
+        if (eventRewardToken === rewardToken) {
+          const rewardAmount = web3.utils.fromWei(event.returnValues.reward, 'ether');
+          totalBribeAmount += parseFloat(rewardAmount);
+        }
+      });
+    };
+
+    // First attempt with primaryRewardToken
+    console.log(`Fetching bribes with primary reward token: ${primaryRewardToken}`);
+    let events = await bribeContract.getPastEvents('RewardAdded', {
       fromBlock: epochStartBlock,
       toBlock: epochEndBlock,
     });
+    accumulateBribes(events, primaryRewardToken);
 
-    let totalBribeAmount = 0;
-    events.forEach(event => {
-      if (event.returnValues.rewardToken.toLowerCase() === '0xde5ed76e7c05ec5e4572cfc88d1acea165109e44') {
-        const rewardAmount = web3.utils.fromWei(event.returnValues.reward, 'ether');
-        totalBribeAmount += parseFloat(rewardAmount);
-      }
-    });
+    // If no bribes found with primary token, try secondaryRewardToken
+    if (totalBribeAmount === 0) {
+      console.warn(`No bribes found for ${primaryRewardToken}, retrying with secondary reward token: ${secondaryRewardToken}`);
+      
+      // Re-fetch events to ensure any filtering issues are avoided
+      events = await bribeContract.getPastEvents('RewardAdded', {
+        fromBlock: epochStartBlock,
+        toBlock: epochEndBlock,
+      });
+      accumulateBribes(events, secondaryRewardToken);
+    }
 
+    console.log(`Total Bribe Amount: ${totalBribeAmount}`);
     setBribes(totalBribeAmount);
   } catch (error) {
     console.error('Error fetching bribes:', error);
@@ -456,13 +523,34 @@ const fetchVeNFTData = async () => {
             <td className="py-3 px-6 text-right">{Number(NFTVotes).toFixed(2)}</td>
             <td className="py-3 px-6 text-right">{Number(totalPoolVotes).toFixed(2)}</td>
             {(() => {
-            const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
-            const nftbribeReturn = Number(bribes) * nftVoteFraction;
-            const bribeDifference = nftbribeReturn - Number(bribes) * prices.DEUS;
-            const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
-            const annualReturn = (bribeDifference + lpFeesReturn) * 52;
-            const tvlForveNFT = Number(veNFTBalance) * prices.THENA;
-            const epochAPR = (annualReturn / tvlForveNFT) * 100;
+              const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
+              console.log(`NFT Votes: ${NFTVotes}`);
+              console.log(`Total Pool Votes: ${totalPoolVotes}`);
+              console.log(`NFT Vote Fraction: ${nftVoteFraction}`);
+
+              const nftbribeReturn = Number(bribes) * nftVoteFraction;
+              console.log(`Bribes: ${bribes}`);
+              console.log(`NFT Bribe Return: ${nftbribeReturn}`);
+
+              const bribeDifference = (nftbribeReturn - Number(bribes)) * prices[bribeToken];
+              console.log(`Bribe Token Price: ${prices[bribeToken]}`);
+              console.log(`Bribe Difference: ${bribeDifference}`);
+
+              const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
+              console.log(`Weekly Fees: ${weeklyFees}`);
+              console.log(`LP Fees Return: ${lpFeesReturn}`);
+
+              const annualReturn = (bribeDifference + lpFeesReturn) * 52;
+              console.log(`Annual Return: ${annualReturn}`);
+
+              const tvlForveNFT = Number(veNFTBalance) * prices.THENA;
+              console.log(`veNFT Balance: ${veNFTBalance}`);
+              console.log(`Price of THENA: ${prices.THENA}`);
+              console.log(`TVL for veNFT: ${tvlForveNFT}`);
+
+              const epochAPR = (annualReturn / tvlForveNFT) * 100;
+              console.log(`Epoch APR: ${epochAPR}`);
+
             
             return (
               <td className="py-3 px-6 text-right">
