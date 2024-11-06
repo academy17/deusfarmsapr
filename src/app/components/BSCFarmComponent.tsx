@@ -123,7 +123,6 @@ const calculate7dSwapVolume = async (
     }
   });
 
-  console.log(`Calculated 7-day swap volume in USD: ${volumeUSD}`);
   return volumeUSD;
 };
 
@@ -146,7 +145,6 @@ const fetchFeeTier = async (poolAddress, poolAbi, factoryAbi, factoryAddress) =>
     try {
       const globalState = await poolContract.methods.globalState().call();
       const feeTier = Number(globalState.fee);
-      console.log(`Fetched fee tier from globalState: ${feeTier}`);
       return { feeTier, scale: 10000 }; // Scale by 10000 for this method
     } catch (error) {
       console.warn("globalState().fee fetch failed, attempting getFee(false)", error);
@@ -156,7 +154,6 @@ const fetchFeeTier = async (poolAddress, poolAbi, factoryAbi, factoryAddress) =>
     try {
       const fee = await factoryContract.methods.getFee(false).call();
       const feeTier = Number(fee);
-      console.log(`Fetched fee tier from getFee(false): ${feeTier}`);
       return { feeTier, scale: 100 }; // Scale by 100 for getFee(false)
     } catch (error) {
       console.error("Error executing getFee(false) on pool contract:", error);
@@ -305,7 +302,6 @@ const BSCFarmComponent = ({
         token0Decimals,
         token1Decimals
       );
-      console.log(`swapvolume: ${volumeUSD}`);
       setSwapVolume(volumeUSD);
     } catch (error) {
       console.error('Error fetching swap volume for last epoch:', error);
@@ -316,11 +312,9 @@ const BSCFarmComponent = ({
 const fetchPoolFeeTier = async () => {
   try {
     const { feeTier, scale } = await fetchFeeTier(poolAddress, abi, factoryAbi, factoryAddress);
-    console.log(`poolfeetier: ${feeTier}`);
     
     // Calculate percentage based on the returned scale
     const poolFeeTierPercentage = feeTier / scale;
-    console.log(`poolfeetierpct: ${poolFeeTierPercentage}`);
     
     setFeeTier(poolFeeTierPercentage);
   } catch (error) {
@@ -347,7 +341,6 @@ const fetchBribesForLastWeekEpoch = async () => {
     const accumulateBribes = (events, rewardToken) => {
       events.forEach(event => {
         const eventRewardToken = event.returnValues.rewardToken?.toLowerCase();
-        console.log(`Event rewardToken: ${eventRewardToken}, reward: ${event.returnValues.reward}`);
         
         if (eventRewardToken === rewardToken) {
           const rewardAmount = web3.utils.fromWei(event.returnValues.reward, 'ether');
@@ -357,7 +350,6 @@ const fetchBribesForLastWeekEpoch = async () => {
     };
 
     // First attempt with primaryRewardToken
-    console.log(`Fetching bribes with primary reward token: ${primaryRewardToken}`);
     let events = await bribeContract.getPastEvents('RewardAdded', {
       fromBlock: epochStartBlock,
       toBlock: epochEndBlock,
@@ -376,7 +368,6 @@ const fetchBribesForLastWeekEpoch = async () => {
       accumulateBribes(events, secondaryRewardToken);
     }
 
-    console.log(`Total Bribe Amount: ${totalBribeAmount}`);
     setBribes(totalBribeAmount);
   } catch (error) {
     console.error('Error fetching bribes:', error);
@@ -425,7 +416,6 @@ const fetchVeNFTData = async () => {
   try {
     const web3 = new Web3(process.env.NEXT_PUBLIC_BSC_RPC_URL);
     const veNFTBalance = await fetchVeNFTBalance(nftId, escrowAbi, escrowAddress);
-    console.log(`venftbalance: ${veNFTBalance}`);
     const formattedveNFTBalance = web3.utils.fromWei(veNFTBalance, 'ether');
     setveNFTBalance(formattedveNFTBalance);
   } catch (err) {
@@ -442,7 +432,6 @@ const fetchVeNFTData = async () => {
     const fetchPricesOnce = async () => {
       try {
         const tokenPrices = await fetchTokenPrices();
-        console.log("Fetched token prices:", tokenPrices);
         setPrices(tokenPrices); 
       } catch (error) {
         console.error('Error fetching token prices:', error);
@@ -455,16 +444,13 @@ const fetchVeNFTData = async () => {
 
   useEffect(() => {
     if (prices && poolData) {
-      console.log("Prices and pool data available, calculating reserves...");
       fetchReserves();
     } else {
-      console.log("Waiting for prices and pool data to be available...");
     }
   }, [prices, poolData]);
 
   useEffect(() => {
     if (reserves.tvl > 0 && prices.DEUS > 0) {
-      console.log(`fetching swap volume...`);
       fetchSwapVolumeForLastWeekEpoch();
       fetchPoolFeeTier();
     }
@@ -524,32 +510,13 @@ const fetchVeNFTData = async () => {
             <td className="py-3 px-6 text-right">{Number(totalPoolVotes).toFixed(2)}</td>
             {(() => {
               const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
-              console.log(`NFT Votes: ${NFTVotes}`);
-              console.log(`Total Pool Votes: ${totalPoolVotes}`);
-              console.log(`NFT Vote Fraction: ${nftVoteFraction}`);
-
               const nftbribeReturn = Number(bribes) * nftVoteFraction;
-              console.log(`Bribes: ${bribes}`);
-              console.log(`NFT Bribe Return: ${nftbribeReturn}`);
-
               const bribeDifference = (nftbribeReturn - Number(bribes)) * prices[bribeToken];
-              console.log(`Bribe Token Price: ${prices[bribeToken]}`);
-              console.log(`Bribe Difference: ${bribeDifference}`);
-
               const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
-              console.log(`Weekly Fees: ${weeklyFees}`);
-              console.log(`LP Fees Return: ${lpFeesReturn}`);
-
               const annualReturn = (bribeDifference + lpFeesReturn) * 52;
-              console.log(`Annual Return: ${annualReturn}`);
 
               const tvlForveNFT = Number(veNFTBalance) * prices.THENA;
-              console.log(`veNFT Balance: ${veNFTBalance}`);
-              console.log(`Price of THENA: ${prices.THENA}`);
-              console.log(`TVL for veNFT: ${tvlForveNFT}`);
-
               const epochAPR = (annualReturn / tvlForveNFT) * 100;
-              console.log(`Epoch APR: ${epochAPR}`);
 
             
             return (

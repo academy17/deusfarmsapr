@@ -29,7 +29,11 @@ export const getWeb3Instance = (rpcIndex = 0): Web3 | null => {
 };
 
 // Retry function that wraps async logic
-export const retryFantomWeb3Operation = async (fn: Function, maxAttempts = fantomRpcUrls.length, delayTime = 2000) => {
+export const retryWeb3Operation = async (
+  fn: () => Promise<any>, // Define `fn` as a function that returns a Promise
+  maxAttempts = fantomRpcUrls.length,
+  delayTime = 2000
+) => {
   let attempts = 0;
   while (attempts < maxAttempts) {
     try {
