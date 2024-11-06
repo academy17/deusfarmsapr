@@ -237,7 +237,7 @@ const FantomFarmComponent = ({
       const web3 = new Web3(process.env.NEXT_PUBLIC_ANKR_FANTOM_RPC_URL);
       const pastTimestamp = calculatePastTimestamp7Days();
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp, voterContract);
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const contract = new web3.eth.Contract(abi, poolAddress);
@@ -291,8 +291,8 @@ const FantomFarmComponent = ({
   const fetchBribesForLastWeekEpoch = async () => {
     try {
       const web3 = getWeb3Instance();
-      const latestTimestamp = Math.floor(Date.now() / 1000);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(latestTimestamp);
+      const pastTimestamp = calculatePastTimestamp14Days();
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const bribeContract = new web3.eth.Contract(bribeAbi, bribeAddress);
@@ -326,12 +326,12 @@ const FantomFarmComponent = ({
       const pastTimestamp = calculatePastTimestamp14Days(); 
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
       const latestTimestamp = Math.floor(Date.now() / 1000);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(latestTimestamp);
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const epochEndBlockFotVotes = epochEndBlock - 10;
-            const nftVotesbyId = await getNftVotesForEpoch(nftId, poolAddress, voterContract, epochEndBlockFotVotes);
-            const formattedNFTVotes = web3.utils.fromWei(nftVotesbyId, 'ether');
-            setNFTVotes(formattedNFTVotes);
+      const nftVotesbyId = await getNftVotesForEpoch(nftId, poolAddress, voterContract, epochEndBlockFotVotes);
+      const formattedNFTVotes = web3.utils.fromWei(nftVotesbyId, 'ether');
+      setNFTVotes(formattedNFTVotes);
     } catch (err) {
       console.error("failed to fetch nft votes", error);
       setError('Error fetching votes by NFT for last week');
@@ -343,7 +343,7 @@ const FantomFarmComponent = ({
       const web3 = getWeb3Instance();
       const pastTimestamp = calculatePastTimestamp14Days(); 
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp, voterContract);
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const epochEndBlockForVotes = epochEndBlock - 10;
       

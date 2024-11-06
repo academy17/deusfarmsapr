@@ -467,10 +467,8 @@ useEffect(() => {
             const nftVoteFraction = Number(NFTVotes) / Number(totalPoolVotes);
             const nftbribeReturn = Number(bribes) * nftVoteFraction;
             const bribeDifference = (nftbribeReturn - Number(bribes)) * prices.DEUS;
-            console.log(`bribeDifferenceNumber: ${bribeDifference}`);
             const lpFeesReturn = Number(weeklyFees) * nftVoteFraction;
             const annualReturn = (bribeDifference + lpFeesReturn) * 52;
-            console.log(`annualReturn: ${annualReturn}`);
 
             const tvlForveNFT = Number(veNFTBalance) * prices.RAM;
             const epochAPR = (annualReturn / tvlForveNFT) * 100;

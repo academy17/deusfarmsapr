@@ -49,13 +49,19 @@ import RAMSES_VOTER_ABI from './abis/arb/RAMSES_VOTER_ABI.json';
 import RAMSES_BRIBE_ABI from './abis/arb/RAMSES_BRIBE_ABI.json';
 import RAM_PAIR_FACTORY_ABI from './abis/arb/RAM_PAIR_FACTORY_ABI.json';
 
+//ICHI VAULT - EQUALIZER
+import IchiVaultComponent from './components/IchiVaultComponent';
+import ICHI_VAULT_ABI from './abis/ftm/ICHI_VAULT_ABI.json';
+import ICHI_POOL_ABI from './abis/ftm/ICHI_POOL_ABI.json';
+
 export default function Home() {
   return (
     <div className="p-6 bg-background text-foreground min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-center">DEUS Farms veNFT APRs</h1>
-      <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> NOTE: veNFT APR is calculated as an annualized bribes-bribeReturn * deusPrice + votingFeeRewards</p>
+      <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> veNFT APR is calculated as: ((((protocolBribes - returnOnBribes) * bribeTokenPrice) + weeklyVotingFeeRewards) * 52 / veNFTDollarValue)</p>
       <p className="text-2xl font-semibold mb-6 text-center text-gray-600"> Data is reflective of the past epoch.</p>
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BASE: Aerodrome</h2>
+      
       {/* WETH/DEUS Farm */}
       <BaseFarmComponent
         poolName="WETH/DEUS"
@@ -97,10 +103,9 @@ export default function Home() {
         nftId={8421}
         escrowAbi={AERO_ESCROW_ABI}
         escrowAddress="0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4"
-
       />
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Equalizer</h2>
-      {/* WFTM/EQUAL Farm */}
+      {/* WFTM/DEUS Farm */}
       <FantomFarmComponent
       poolName="WFTM/DEUS"
       poolAddress="0xC55759453BEddb449Df6c66c105d632e322098B3"
@@ -121,6 +126,26 @@ export default function Home() {
       nftId={14707}
       escrowAbi={EQUALIZER_VOTING_ESCROW_ABI}
       escrowAddress="0x8313f3551C4D3984FfbaDFb42f780D0c8763Ce94"
+    />
+
+          {/* WFTM/USDC Ichi Farm */}
+      <IchiVaultComponent
+      poolName="WFTM/USDC"
+      poolAddress="0x2543EAD1e0422c63F79061aAEB2A5818F6ee63E5"
+      poolVoteAddress="0x93b1bCE818DE8eDd582df10941E16BAEdb85dB0E"
+      poolAbi={ICHI_POOL_ABI}
+      vaultAddress="0x5a96473B147b3c3790aF7c16C1D1a2c2A15D160E"
+      token0Symbol="WFTM"
+      token1Symbol="USDC"
+      vaultAbi={ICHI_VAULT_ABI}
+      nftId={14707}
+      escrowAbi={EQUALIZER_VOTING_ESCROW_ABI}
+      escrowAddress="0x8313f3551C4D3984FfbaDFb42f780D0c8763Ce94"
+      voterAbi={EQUALIZER_VOTER_ABI}
+      voterAddress="0xE3D1A117dF7DCaC2eB0AC8219341bAd92f18dAC1"
+      bribeAbi={EQUALIZER_BRIBE_ABI}
+      bribeAddress="0x4666f33E4fbE6C8AA9671bD2AEdc46d641451F85"
+
     />
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">BSC: Thena</h2>
     {/* BNB/DEUS Farm */}
@@ -163,7 +188,6 @@ export default function Home() {
         factoryAddress="0xAFD89d21BdB66d00817d4153E055830B1c2B3970"
         bribeToken="PION"
         />
-
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Fantom: Solidly</h2>
       {/* Solidly Farm */}
       <SolidlyFarmComponent
@@ -184,7 +208,6 @@ export default function Home() {
         escrowAbi={SOLIDLY_VOTING_ESCROW}
         escrowAddress="0x777B2Cc540E5E6824a5ceafB04c5a383874a6Bf5"
       />
-
       <h2 className="text-2xl font-semibold mb-6 text-center text-gray-600">Arbitrum: RAMSES</h2>
       {/* RAMSES WETH/DEUS Farm*/}
       <ArbitrumFarmComponent
@@ -225,9 +248,5 @@ export default function Home() {
         factoryAddress="0xAAA20D08e59F6561f242b08513D36266C5A29415"
       />
     </div>
-
-    
-
-
   );
 }

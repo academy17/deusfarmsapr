@@ -7,7 +7,6 @@ import {initializeMoralis} from '../utils/moralisHelper';
 import { getWeb3Instance } from '../utils/fantomWeb3Helper';
 
 
-// Fetch token prices (SOLID, DEUS, FTM)
 const fetchTokenPrices = async () => {
   const apiKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
   try {
@@ -72,17 +71,13 @@ const calculate7dSwapVolume = async (
   swapEvents.forEach((event, index) => {
     const { amount0, amount1 } = event.returnValues;
 
-    // Convert amounts to readable values
     const parsedAmount0 = parseFloat(Web3.utils.fromWei(amount0, "ether"));
     const parsedAmount1 = parseFloat(Web3.utils.fromWei(amount1, "ether"));
 
 
-    // Check if the parsed amounts are valid numbers
     if (!isNaN(parsedAmount0) && parsedAmount0 < 0) {
-      // Token0 was sold in the swap
       volumeUSD += Math.abs(parsedAmount0) * (prices[token0Symbol] || 0);
     } else if (!isNaN(parsedAmount1) && parsedAmount1 < 0) {
-      // Token1 was sold in the swap
       volumeUSD += Math.abs(parsedAmount1) * (prices[token1Symbol] || 0);
     }
   });
@@ -92,20 +87,6 @@ const calculate7dSwapVolume = async (
 
 
 
-/*
-const fetchFeeTier = async (poolAddress, _stable, factoryAbi, factoryAddress) => {
-  try {
-    const web3 = getWeb3Instance();
-    const factoryContract = new web3.eth.Contract(factoryAbi, factoryAddress);
-    const feeTier = await factoryContract.methods.getRealFee(poolAddress).call();
-    const feeTierNumber = Number(feeTier);
-    return feeTierNumber;
-  } catch (error) {
-    console.error('Error fetching fee tier:', error);
-    return null;
-  }
-};
-*/
 const calculatePastTimestamp14Days = () => {
   const secondsPerDay = 60 * 60 * 24;
   const timestamp14DaysAgo = Math.floor(Date.now() / 1000) - (14 * secondsPerDay);
@@ -119,27 +100,23 @@ const calculatePastTimestamp7Days = () => {
 };
 
 const getEpochBoundsByTimestamp = async (timestamp: number) => {
-  // Helper function to find the most recent Thursday at 00:00 UTC
   const getMostRecentThursday = (date: Date) => {
     const day = date.getUTCDay();
-    const diff = (7 + day - 4) % 7; // Days to last Thursday
+    const diff = (7 + day - 4) % 7;
     const recentThursday = new Date(date);
     recentThursday.setUTCDate(date.getUTCDate() - diff);
-    recentThursday.setUTCHours(0, 0, 0, 0); // Set to 00:00 UTC
+    recentThursday.setUTCHours(0, 0, 0, 0);
     return recentThursday;
   };
 
-  const inputDate = new Date(timestamp * 1000); // Convert seconds to milliseconds
+  const inputDate = new Date(timestamp * 1000);
   const mostRecentThursday = getMostRecentThursday(inputDate);
 
-  // Set `epochEnd` as the most recent Thursday
   const epochEnd = mostRecentThursday;
 
-  // Set `epochStart` as the Thursday a week before `epochEnd`
   const epochStart = new Date(epochEnd);
-  epochStart.setUTCDate(epochEnd.getUTCDate() - 7); // Go back 7 days to the previous Thursday
+  epochStart.setUTCDate(epochEnd.getUTCDate() - 7);
 
-  // Convert dates to Unix timestamps
   const epochStartNumber = Math.floor(epochStart.getTime() / 1000);
   const epochEndNumber = Math.floor(epochEnd.getTime() / 1000);
 
@@ -150,10 +127,10 @@ const getBlockFromTimestampMoralis = async (timestamp: number): Promise<number |
   try {
     await initializeMoralis();
 
-    const date = new Date(timestamp * 1000).toISOString(); // Convert seconds to milliseconds and format
+    const date = new Date(timestamp * 1000).toISOString();
 
     const response = await Moralis.EvmApi.block.getDateToBlock({
-      chain: "0xfa", // Fantom chain ID 
+      chain: "0xfa",
       date: date,
     });
 
@@ -189,7 +166,6 @@ const fetchVeNFTBalance = async (nftId, escrowAbi, escrowAddress) => {
 };
 
 
-// Main SolidlyFarmComponent
 const SolidlyFarmComponent = ({
   poolName,
   poolAddress,
@@ -221,26 +197,22 @@ const SolidlyFarmComponent = ({
   const [totalPoolVotes, setTotalPoolVotes] = useState(0);
   const [veNFTBalance, setveNFTBalance] = useState(0);
 
-  // Fetch token prices
   const fetchPrices = async () => {
     try {
       const tokenPrices = await fetchTokenPrices();
-      setPrices(tokenPrices); // Set prices state
+      setPrices(tokenPrices);
     } catch (err) {
       console.error("Error fetching token prices", err);
       setError("Error fetching token prices");
     }
   };
 
-  // Fetch Reserves for wFTM and DEUS in the LP contract
   const fetchReserves = async () => {
     try {
-      // Token contract addresses
       const web3 = new Web3(process.env.NEXT_PUBLIC_ANKR_FANTOM_RPC_URL);
-      const wFTMAddress = "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83"; // wFTM
-      const DEUSAddress = "0xDE55B113A27Cc0c5893CAa6Ee1C020b6B46650C0"; // DEUS
+      const wFTMAddress = "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83";
+      const DEUSAddress = "0xDE55B113A27Cc0c5893CAa6Ee1C020b6B46650C0";
   
-      // ABI for balanceOf function
       const tokenABI = [
         {
           constant: true,
@@ -253,15 +225,12 @@ const SolidlyFarmComponent = ({
         },
       ];
   
-      // Create contract instances for wFTM and DEUS
       const wFTMContract = new web3.eth.Contract(tokenABI, wFTMAddress);
       const DEUSContract = new web3.eth.Contract(tokenABI, DEUSAddress);
   
-      // Query the balances of wFTM and DEUS in the LP contract
       const wFTMBalance = await wFTMContract.methods.balanceOf(poolAddress).call();
       const DEUSBalance = await DEUSContract.methods.balanceOf(poolAddress).call();
   
-      // Fetch token prices
       if (!prices) return;
       const price0 = prices.WFTM;
       const price1 = prices.DEUS;
@@ -270,9 +239,8 @@ const SolidlyFarmComponent = ({
         throw new Error("Prices not available for tokens");
       }
 
-      // Set the reserves and TVL
-      const reserve0 = BigInt(wFTMBalance) / BigInt(10 ** 18); // wFTM has 18 decimals
-      const reserve1 = BigInt(DEUSBalance) / BigInt(10 ** 18); // DEUS has 18 decimals
+      const reserve0 = BigInt(wFTMBalance) / BigInt(10 ** 18);
+      const reserve1 = BigInt(DEUSBalance) / BigInt(10 ** 18);
       const tvl = Number(reserve0) * price0 + Number(reserve1) * price1;
   
       setReserves({
@@ -291,7 +259,7 @@ const SolidlyFarmComponent = ({
   const fetchSwapVolumeForLastWeekEpoch = async () => {
     try {
       const web3 = new Web3(process.env.NEXT_PUBLIC_ANKR_FANTOM_RPC_URL);
-      const pastTimestamp = calculatePastTimestamp7Days(); // Timestamp from 14 days ago
+      const pastTimestamp = calculatePastTimestamp7Days();
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
       const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
@@ -332,9 +300,9 @@ const SolidlyFarmComponent = ({
 
   const fetchAPR = async () => {
     try {
-      const rewardRate = await fetchRewardRate(gaugeAbi, gaugeAddress, solidTokenAddress); // Pass EQUAL token address
-      if (rewardRate && reserves.tvl && prices.EQUAL) { // Ensure EQUAL price is used
-        const aprValue = calculateAPR(rewardRate, prices.EQUAL, reserves.tvl); // Use EQUAL price in APR calculation
+      const rewardRate = await fetchRewardRate(gaugeAbi, gaugeAddress, solidTokenAddress);
+      if (rewardRate && reserves.tvl && prices.EQUAL) {
+        const aprValue = calculateAPR(rewardRate, prices.EQUAL, reserves.tvl);
         setApr(aprValue);
       }
     } catch (err) {
@@ -345,8 +313,8 @@ const SolidlyFarmComponent = ({
   const fetchBribesForLastWeekEpoch = async () => {
     try {
       const web3 = getWeb3Instance();
-      const latestTimestamp = Math.floor(Date.now() / 1000);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(latestTimestamp);
+      const pastTimestamp = calculatePastTimestamp14Days();
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochStartBlock = await getBlockFromTimestampMoralis(epochStartNumber);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const bribeContract = new web3.eth.Contract(bribeAbi, bribeAddress);
@@ -354,11 +322,10 @@ const SolidlyFarmComponent = ({
         fromBlock: epochStartBlock,
         toBlock: epochEndBlock,
         filter: {
-          token: '0xDE55B113A27Cc0c5893CAa6Ee1C020b6B46650C0',  // Replace with the token address if needed
+          token: '0xDE55B113A27Cc0c5893CAa6Ee1C020b6B46650C0',
         },
       });
   
-      // Calculate total bribe amount
       let totalBribeAmount = 0;
       events.forEach(event => {
         const bribeAmount = event.returnValues && event.returnValues.amount 
@@ -380,8 +347,7 @@ const SolidlyFarmComponent = ({
       const web3 = getWeb3Instance();
       const pastTimestamp = calculatePastTimestamp14Days(); 
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
-      const latestTimestamp = Math.floor(Date.now() / 1000);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(latestTimestamp);
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const epochEndBlockFotVotes = epochEndBlock - 10;
             const nftVotesbyId = await getNftVotesForEpoch(nftId, poolAddress, voterContract, epochEndBlockFotVotes);
@@ -398,7 +364,7 @@ const SolidlyFarmComponent = ({
       const web3 = getWeb3Instance();
       const pastTimestamp = calculatePastTimestamp14Days(); 
       const voterContract = new web3.eth.Contract(voterAbi, voterAddress);
-      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp, voterContract);
+      const { epochStartNumber, epochEndNumber } = await getEpochBoundsByTimestamp(pastTimestamp);
       const epochEndBlock = await getBlockFromTimestampMoralis(epochEndNumber);
       const epochEndBlockForVotes = epochEndBlock - 10;
       
@@ -417,7 +383,7 @@ const SolidlyFarmComponent = ({
       const web3 = getWeb3Instance();
       const veNFTBalance = await fetchVeNFTBalance(nftId, escrowAbi, escrowAddress);
       const formattedveNFTBalance = web3.utils.fromWei(veNFTBalance, 'ether');
-      setveNFTBalance(formattedveNFTBalance); // Now it will accept the number type
+      setveNFTBalance(formattedveNFTBalance);
     } catch (err) {
       console.error('Error fetching veNFT data:', err);
     }
@@ -458,7 +424,6 @@ const SolidlyFarmComponent = ({
   }, [feeTier, swapVolume]); 
   
   useEffect(() => {
-    //fetchBribesForLastWeekEpoch(); --No Bribes to Fetch
     fetchNftVotesForEpoch();
     fetchTotalPoolVotesForEpoch(); 
     fetchVeNFTData(); 
