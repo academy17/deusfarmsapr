@@ -356,6 +356,7 @@ const SolidlyFarmComponent = ({
     } catch (err) {
       console.error("failed to fetch nft votes", error);
       setError('Error fetching votes by NFT for last week');
+      
     }
   };
   
