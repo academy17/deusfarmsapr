@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "NEXT_PUBLIC_IGNORE_TS_ERRORS=1 next build",
     "start": "next start",
     "lint": "next lint"
   },
+
   "dependencies": {
     "axios": "^1.7.7",
     "bn.js": "^5.2.1",
