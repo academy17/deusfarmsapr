@@ -30,20 +30,16 @@ export const getBSCWeb3Instance = (rpcIndex = 0): Web3 | null => {
 };
 
 // Retry function that wraps async logic
-export const retryWeb3Operation = async (
-  fn: () => Promise<any>, // Define `fn` as a function that returns a Promise
-  maxAttempts = rpcUrls.length,
-  delayTime = 2000
-) => {
+export const retryWeb3Operation = async <T>(fn: () => Promise<T>, maxAttempts = rpcUrls.length, delayTime = 2000): Promise<T> => {
   let attempts = 0;
   while (attempts < maxAttempts) {
     try {
-      return await fn(); // Execute the function
+      return await fn();
     } catch (error) {
       console.error(`Error on attempt ${attempts + 1}:`, error);
       attempts += 1;
       if (attempts < maxAttempts) {
-        await delay(delayTime); // Add delay before retrying
+        await delay(delayTime);
       }
     }
   }
